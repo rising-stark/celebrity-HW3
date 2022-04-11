@@ -24,7 +24,7 @@ const questionSchema = new mongoose.Schema({
   correct_option: {
     type: String,
     required: true,
-  }
+  },
 });
 
 module.exports = mongoose.model("Question", userSchema);
