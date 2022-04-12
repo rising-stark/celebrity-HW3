@@ -62,7 +62,9 @@ function getImageByName(name: string): Promise<string> {
 
 function fetchAllCeleb(): Promise<CelebDatum[]> {
   return new Promise<CelebDatum[]>((resolve) => {
-    axios.get('data.json').then((res) => resolve(res.data));
+    axios.get("http://localhost:5000/game").then((res) => {
+      resolve(res.data.questions);
+    });
   });
 }
 

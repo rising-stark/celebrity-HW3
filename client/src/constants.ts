@@ -1,8 +1,12 @@
-const currentPlayerLS = '---current---';
+const currentPlayerLS = "---current---";
 
 interface CelebDatum {
-  name: string;
-  image: string;
+  imgUrl: string;
+  option1: string;
+  option2: string;
+  option3: string;
+  option4: string;
+  correct_option: string;
 }
 
 export { currentPlayerLS };
