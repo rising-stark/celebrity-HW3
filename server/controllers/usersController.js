@@ -28,7 +28,7 @@ const authenticate = async (req, res, next) => {
 const getLeaderboard = async (req, res, next) => {
   try {
     let leaderCount = req.body.leaderCount || 10;
-    let leaderboard = await User.find()
+    let leaderboard = await User.find({}, { username: 1, bestScore: 1, _id: 0 })
       .sort({ bestScore: -1 })
       .limit(leaderCount);
     return res.status(200).json({ leaderboard });
