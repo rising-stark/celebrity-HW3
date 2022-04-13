@@ -25,14 +25,19 @@ const Game = () => {
   useEffect(() => {
     fetchAllCeleb().then((res) => {
       setCelebData(res);
-      setOptions([
-        res[0].option1,
-        res[0].option2,
-        res[0].option3,
-        res[0].option4,
-      ]);
     });
   }, []);
+
+  useEffect(() => {
+    if (celebData.length > 0) {
+      setOptions([
+        celebData[index].option1,
+        celebData[index].option2,
+        celebData[index].option3,
+        celebData[index].option4,
+      ]);
+    }
+  }, [celebData, index]);
 
   const confirmAnswer = () => {
     if (selectedOption === "") {
