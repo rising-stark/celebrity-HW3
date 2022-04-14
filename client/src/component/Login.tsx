@@ -1,51 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import Form from 'antd/lib/form';
-import { Button, Input, Row, message } from 'antd';
-import { LoginOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import { currentPlayerLS } from '../constants';
+import React, { useState } from "react";
+import { useCookies } from "react-cookie";
+import Form from "antd/lib/form";
+import { Button, Input, Row, message } from "antd";
+import { LoginOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import { login } from "../service";
 
 const Login = () => {
-  const [username, setUsername] = useState<string>('');
-  const onUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value);
+  const [username, setUsername] = useState<string>("");
+  const [cookies, setCookie] = useCookies();
+  const onUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setUsername(e.target.value);
 
   const navigate = useNavigate();
 
   const onLogin = () => {
     const alphaNumeric = /^[0-9a-zA-Z]+$/;
-    if (username === '') {
-      message.error('Please enter username');
+    if (username === "") {
+      message.error("Please enter username");
     } else if (!username.match(alphaNumeric)) {
-      message.error('Only Alpha-Numeric chars');
+      message.error("Only Alpha-Numeric chars");
     } else {
-      localStorage.setItem(currentPlayerLS, username);
-      navigate('/game');
+      login(username)
+        .then((res) => {
+          if (res && res.status === 200) {
+            setCookie("jwt", res.data.jwt);
+            setCookie("username", res.data.username);
+            alert("LoggedIn Successfully");
+            navigate("/game");
+          } else {
+            alert("Server error. Try again after sometime");
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          alert("Server error. Try again after sometime");
+        });
     }
   };
-
-  const testReq = async () => {
-    try{
-      const res = await fetch(`http://localhost:5000/`, {
-        method: "GET"
-      });
-      if(res && res.status === 200){
-        console.log("yes wre e");
-      }
-    } catch (error) {
-      console.log(error);
-      console.log("Server error. Message could not be delivered. Try again after sometime")
-    }
-  };
-
-  useEffect(() => {
-    testReq();
-  }, []);
 
   return (
     <>
       {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-      {/* @ts-ignore */}
-      <Row type="flex" justify="center" align="middle" style={{ minHeight: '100vh' }}>
+      <Row
+        //@ts-ignore
+        type="flex"
+        justify="center"
+        align="middle"
+        style={{ minHeight: "100vh" }}>
         <Form>
           <Form.Item label="Username">
             <Input
@@ -55,7 +57,13 @@ const Login = () => {
               onChange={onUsernameChange}
             />
           </Form.Item>
-          <Button data-cy="login-button" onClick={onLogin} type="default" className="w-full" icon={<LoginOutlined />} />
+          <Button
+            data-cy="login-button"
+            onClick={onLogin}
+            type="default"
+            className="w-full"
+            icon={<LoginOutlined />}
+          />
         </Form>
       </Row>
     </>

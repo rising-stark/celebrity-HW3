@@ -19,4 +19,20 @@ function fetchLeaderboard(): Promise<LeaderBoard[]> {
   });
 }
 
-export { fetchAllCeleb, fetchLeaderboard };
+function login(username: String): Promise<any> {
+  return new Promise<any>((resolve) => {
+    axios.post(`${host}/login`, { username }).then((res) => {
+      resolve(res);
+    });
+  });
+}
+
+function deleteAccount(username: String): Promise<Number> {
+  return new Promise<Number>((resolve) => {
+    axios.delete(`${host}/users/${username}`).then((res) => {
+      resolve(res.status);
+    });
+  });
+}
+
+export { fetchAllCeleb, fetchLeaderboard, login, deleteAccount };

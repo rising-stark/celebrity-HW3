@@ -25,7 +25,24 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-const getLeaderboard = async (req, res, next) => {
+const login = async (req, res) => {
+  try {
+    const { username } = req.body;
+    let user = await User.findOne({ username });
+    if (!user) {
+      user = await User.create({ username });
+    }
+    const jwt = await user.generateToken();
+    res.cookie("jwt", jwt);
+    res.cookie("username", user.username);
+    return res.status(200).json({ username, jwt });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send("Server error");
+  }
+};
+
+const getLeaderboard = async (req, res) => {
   try {
     let leaderCount = req.body.leaderCount || 10;
     let leaderboard = await User.find({}, { username: 1, bestScore: 1, _id: 0 })
@@ -38,9 +55,9 @@ const getLeaderboard = async (req, res, next) => {
   }
 };
 
-const deleteUser = async (req, res, next) => {
+const deleteUser = async (req, res) => {
   try {
-    await User.findByIdAndRemove(req.params.id);
+    await User.findOneAndDelete({ username: req.params.username });
     return res.status(200).send("User Successfully Deleted");
   } catch (err) {
     console.log(err);
@@ -48,12 +65,13 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-const updateScore = async (req, res, next) => {
+const updateScore = async (req, res) => {
   try {
     const { bestScore } = req.body;
-    await User.findByIdAndUpdate(id, {
-      bestScore,
-    });
+    await User.findOneAndUpdate(
+      { username: req.params.username },
+      { bestScore }
+    );
     return res.status(200).send("User bestScore successfully updated");
   } catch (err) {
     console.log(err);
@@ -64,3 +82,4 @@ exports.authenticate = authenticate;
 exports.getLeaderboard = getLeaderboard;
 exports.deleteUser = deleteUser;
 exports.updateScore = updateScore;
+exports.login = login;

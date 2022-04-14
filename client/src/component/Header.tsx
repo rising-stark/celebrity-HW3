@@ -1,11 +1,17 @@
 import { PageHeader, Button } from "antd";
-import { currentPlayerLS } from "../constants";
 import { Link, useNavigate } from "react-router-dom";
 import { ExclamationCircleOutlined, StopOutlined } from "@ant-design/icons";
 import Modal from "antd/lib/modal";
+import { useCookies } from "react-cookie";
+import { deleteAccount } from "../service";
 
 const Header = () => {
+  const [cookies, setCookie, removeCookie] = useCookies();
   const navigate = useNavigate();
+  const clearCookies = () => {
+    removeCookie("jwt");
+    removeCookie("username");
+  };
   const onDelete = () => {
     Modal.confirm({
       closable: true,
@@ -14,12 +20,16 @@ const Header = () => {
       okText: "Yes",
       cancelText: "No",
       onOk: () => {
-        const player = localStorage.getItem(currentPlayerLS);
-        localStorage.removeItem(currentPlayerLS);
-        if (player) {
-          localStorage.removeItem(player);
-        }
-        navigate("/");
+        deleteAccount(cookies.username)
+          .then(() => {
+            clearCookies();
+            alert("Account deleted successfully.");
+            navigate("/");
+          })
+          .catch((error) => {
+            console.log(error);
+            alert("Server error. Try again after sometime");
+          });
       },
     });
   };
@@ -31,8 +41,8 @@ const Header = () => {
       okText: "Yes",
       cancelText: "No",
       onOk: () => {
-        localStorage.removeItem(currentPlayerLS);
-        navigate("/");
+        clearCookies();
+        navigate("/login");
       },
     });
   };
