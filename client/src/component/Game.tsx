@@ -4,9 +4,10 @@ import { Steps, Row, Button, Radio, Space, message } from "antd";
 // @ts-ignore
 import ImageViewer from "react-simple-image-viewer";
 import { CelebDatum, currentPlayerLS } from "../constants";
-import { fetchAllCeleb } from "../service";
+import { fetchAllCeleb, fetchScore } from "../service";
 import { useNavigate } from "react-router-dom";
 import { Header } from "./Header";
+import { useCookies } from "react-cookie";
 
 const { Step } = Steps;
 
@@ -19,6 +20,7 @@ const Game = () => {
   const [score, setScore] = useState<number>(0);
   const [topScore, setTopScore] = useState<[string, number]>(["", 0]);
   const [myTopScore, setMyTopScore] = useState(0);
+  const [cookies] = useCookies();
 
   const navigate = useNavigate();
 
@@ -27,6 +29,13 @@ const Game = () => {
       setCelebData(res);
     });
   }, []);
+
+  useEffect(() => {
+    fetchScore(cookies.username).then((res) => {
+      setMyTopScore(res.myScore.bestScore);
+      setTopScore([res.bestScore[0].username, res.bestScore[0].bestScore]);
+    });
+  }, [cookies.username, myTopScore]);
 
   useEffect(() => {
     if (celebData.length > 0) {
@@ -78,30 +87,6 @@ const Game = () => {
     setSelectedOption(option);
   };
 
-  useEffect(() => {
-    const dict = { ...localStorage };
-    const items: [string, number][] = Object.keys(dict).map((key) => [
-      key,
-      parseInt(dict[key], 10),
-    ]);
-    items.sort((first, second) => {
-      return second[1] - first[1];
-    });
-    const items1 = items
-      .filter((item) => item[0] !== currentPlayerLS)
-      .slice(0, 1);
-    const items2 = items
-      .filter((item) => item[0] === localStorage.getItem(currentPlayerLS))
-      .slice(0, 1);
-    try {
-      setMyTopScore(items2[0][1]);
-    } catch (_) {}
-    try {
-      // @ts-ignore
-      setTopScore(items1[0]);
-    } catch (_) {}
-  }, []);
-
   return (
     <>
       <Header />
@@ -127,9 +112,7 @@ const Game = () => {
             </div>
           )}
           <div>
-            {myTopScore !== undefined && (
-              <>Your Top Score: {myTopScore || ""}</>
-            )}
+            {myTopScore !== undefined && <>Your Top Score: {myTopScore}</>}
           </div>
           <img
             src={celebData[index]?.imgUrl}

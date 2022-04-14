@@ -78,8 +78,26 @@ const updateScore = async (req, res) => {
     return res.status(400).send("Unable To update user bestScore");
   }
 };
+
+const getScore = async (req, res) => {
+  try {
+    const myScore = await User.findOne(
+      { username: req.params.username },
+      { bestScore: 1, _id: 0 }
+    );
+    const bestScore = await User.find({}, { username: 1, bestScore: 1, _id: 0 })
+      .sort({ bestScore: -1 })
+      .limit(1);
+    return res.status(200).json({ myScore, bestScore });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send("Unable To find user score");
+  }
+};
+
 exports.authenticate = authenticate;
 exports.getLeaderboard = getLeaderboard;
 exports.deleteUser = deleteUser;
 exports.updateScore = updateScore;
+exports.getScore = getScore;
 exports.login = login;

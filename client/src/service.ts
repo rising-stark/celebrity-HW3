@@ -19,6 +19,14 @@ function fetchLeaderboard(): Promise<LeaderBoard[]> {
   });
 }
 
+function fetchScore(username: String): Promise<any> {
+  return new Promise<any>((resolve) => {
+    axios.get(`${host}/users/${username}`).then((res) => {
+      resolve(res.data);
+    });
+  });
+}
+
 function login(username: String): Promise<any> {
   return new Promise<any>((resolve) => {
     axios.post(`${host}/login`, { username }).then((res) => {
@@ -35,4 +43,4 @@ function deleteAccount(username: String): Promise<Number> {
   });
 }
 
-export { fetchAllCeleb, fetchLeaderboard, login, deleteAccount };
+export { fetchAllCeleb, fetchLeaderboard, login, deleteAccount, fetchScore };

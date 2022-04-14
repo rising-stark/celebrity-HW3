@@ -12,6 +12,7 @@ router.get("/game", questionsController.getQuestions);
 
 // User routes
 router.get("/leaderboard", usersController.getLeaderboard);
+router.get("/users/:username", usersController.getScore);
 router.put("/users/:username", usersController.updateScore);
 router.delete("/users/:username", usersController.deleteUser);
 
