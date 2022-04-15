@@ -1,5 +1,3 @@
-const currentPlayerLS = "---current---";
-
 interface CelebDatum {
   imgUrl: string;
   option1: string;
@@ -14,5 +12,4 @@ interface LeaderBoard {
   bestScore: string;
 }
 
-export { currentPlayerLS };
 export type { CelebDatum, LeaderBoard };

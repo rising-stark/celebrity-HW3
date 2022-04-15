@@ -3,8 +3,8 @@ import { Steps, Row, Button, Radio, Space, message } from "antd";
 
 // @ts-ignore
 import ImageViewer from "react-simple-image-viewer";
-import { CelebDatum, currentPlayerLS } from "../constants";
-import { fetchAllCeleb, fetchScore } from "../service";
+import { CelebDatum } from "../constants";
+import { fetchAllCeleb, fetchScore, updateScore } from "../service";
 import { useNavigate } from "react-router-dom";
 import { Header } from "./Header";
 import { useCookies } from "react-cookie";
@@ -38,7 +38,7 @@ const Game = () => {
   }, [cookies.username, myTopScore]);
 
   useEffect(() => {
-    if (celebData.length > 0) {
+    if (celebData.length > 0 && index < celebData.length) {
       setOptions([
         celebData[index].option1,
         celebData[index].option2,
@@ -47,6 +47,19 @@ const Game = () => {
       ]);
     }
   }, [celebData, index]);
+
+  useEffect(() => {
+    if (index > 0 && index === celebData.length) {
+      if (score > myTopScore) {
+        updateScore(cookies.username, score);
+      }
+      const propsState = {
+        score: score,
+        best: Math.max(score, myTopScore),
+      };
+      navigate("/score", { state: propsState });
+    }
+  }, [score, index]);
 
   const confirmAnswer = () => {
     if (selectedOption === "") {
@@ -60,27 +73,7 @@ const Game = () => {
       message.error("Wrong Answer");
     }
     setSelectedOption("");
-    setIndex((indexTem) => Math.min(indexTem + 1, celebData.length - 1));
-    if (Math.min(index + 1, celebData.length - 1) === index) {
-      const username = localStorage.getItem(currentPlayerLS);
-      if (!username) {
-        return;
-      }
-      const propsState = {
-        score: score,
-        best: username
-          ? parseInt(localStorage.getItem(username) || "0", 10)
-          : 0,
-      };
-      console.log(propsState);
-      navigate("/score", { state: propsState });
-      if (
-        username &&
-        parseInt(localStorage.getItem(username) || "0", 10) < score
-      ) {
-        localStorage.setItem(username, score.toString());
-      }
-    }
+    setIndex((indexTem) => indexTem + 1);
   };
 
   const onOptionSelect = (option: string) => {

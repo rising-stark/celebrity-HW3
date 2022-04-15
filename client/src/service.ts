@@ -27,6 +27,14 @@ function fetchScore(username: String): Promise<any> {
   });
 }
 
+function updateScore(username: String, bestScore: Number): Promise<Number> {
+  return new Promise<Number>((resolve) => {
+    axios.put(`${host}/users/${username}`, { bestScore }).then((res) => {
+      resolve(res.status);
+    });
+  });
+}
+
 function login(username: String): Promise<any> {
   return new Promise<any>((resolve) => {
     axios.post(`${host}/login`, { username }).then((res) => {
@@ -43,4 +51,11 @@ function deleteAccount(username: String): Promise<Number> {
   });
 }
 
-export { fetchAllCeleb, fetchLeaderboard, login, deleteAccount, fetchScore };
+export {
+  fetchAllCeleb,
+  fetchLeaderboard,
+  login,
+  deleteAccount,
+  fetchScore,
+  updateScore,
+};
