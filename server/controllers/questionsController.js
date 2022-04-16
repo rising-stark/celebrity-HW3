@@ -1,6 +1,6 @@
 const Question = require("../models/Question");
 
-const getQuestions = async (req, res, next) => {
+const getQuestions = async (req, res) => {
   try {
     let questionsCount = req.body.questionsCount || 10;
     let questions = await Question.aggregate([
