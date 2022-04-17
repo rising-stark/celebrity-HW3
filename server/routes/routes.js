@@ -9,7 +9,7 @@ router.post("/login", usersController.login);
 
 // Question routes
 router.get(
-  "/game",
+  "/questions",
   usersController.authorise,
   questionsController.getQuestions
 );
