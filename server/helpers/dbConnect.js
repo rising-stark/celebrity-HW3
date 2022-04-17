@@ -17,12 +17,4 @@ function dbClose() {
   return mongoose.disconnect();
 }
 
-async function dbDrop() {
-  const collections = Object.keys(mongoose.collections);
-  for (const collectionName of collections) {
-    const collection = mongoose.collections[collectionName];
-    await collection.deleteMany();
-  }
-}
-
-module.exports = { dbConnect, dbClose, dbDrop };
+module.exports = { dbConnect, dbClose };
