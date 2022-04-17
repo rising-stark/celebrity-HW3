@@ -1,4 +1,4 @@
-const { dbConnect, dbClose, dbDrop } = require("../../helpers/dbConnect");
+const { dbConnect, dbClose } = require("../../helpers/dbConnect");
 const { seedDatabase } = require("../../helpers/seedDatabase/seedDatabase");
 
 let basicSetup = () => {
@@ -14,12 +14,6 @@ let basicSetup = () => {
   });
 
   afterAll((done) => {
-    dbDrop()
-      .then(() => {
-        console.log("Database dropped");
-        done();
-      })
-      .catch((err) => done(err));
     dbClose()
       .then(() => {
         console.log("Database connection closed");

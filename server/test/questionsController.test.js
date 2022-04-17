@@ -3,12 +3,20 @@ const app = require("../app");
 const request = supertest(app);
 
 const testSetup = require("./helpers/testSetup");
+const {
+  testJwt,
+  testUsername,
+  testUserBestScore,
+  testOverallBestScore,
+} = require("./helpers/testConstants");
 
 testSetup();
 
-describe("questionsController.getQuestions() tests", () => {
-  it("GET /game. Expect status 200 with a questions object returned", async () => {
-    const res = await request.get("/game");
+describe("GET /questions. questionsController.getQuestions() tests", () => {
+  it("Request with correct credentials. Expect status 200 with a questions object as response", async () => {
+    const res = await request
+      .get("/questions")
+      .set("Cookie", [`jwt=${testJwt}`, `username=${testUsername}`]);
 
     expect(res.status).toBe(200);
 
@@ -24,5 +32,11 @@ describe("questionsController.getQuestions() tests", () => {
       expect(questions[i].correct_option).toBeTruthy();
       expect(questions[i].imgUrl).toBeTruthy();
     }
+  });
+
+  it("Request without credentials. Expect status 401", async () => {
+    const res = await request.get("/questions");
+
+    expect(res.status).toBe(401);
   });
 });
