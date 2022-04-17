@@ -1,12 +1,19 @@
 {
-  "name": "backend",
+  "name": "server",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "description": "HW3 celebrity backend server",
+  "main": "start.js",
   "scripts": {
-    "start": "nodemon start.js",
-    "test": "jest ./test --coverage"
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "jest ./test --coverage",
+    "start": "nodemon start.js"
   },
+  "keywords": [
+    "node",
+    "express",
+    "eslint"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
