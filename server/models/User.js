@@ -28,7 +28,10 @@ const userSchema = new mongoose.Schema(
 // Generate Tokens to Verify User
 userSchema.methods.generateToken = async function () {
   try {
-    let generatedToken = jwt.sign({ _id: this._id }, process.env.SECRET_KEY);
+    let generatedToken = jwt.sign(
+      { username: this.username },
+      process.env.SECRET_KEY
+    );
     this.tokens = this.tokens.concat({ token: generatedToken });
     await this.save();
     return generatedToken;

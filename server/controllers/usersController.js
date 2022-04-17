@@ -1,26 +1,25 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-const authenticate = async (req, res, next) => {
+const authorise = async (req, res, next) => {
   try {
     // Get the Cookies
     const token = req.cookies.jwt;
-    if (!token) {
-      res.status(400).send("No token");
-    } else {
-      const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
-      const rootUser = await User.findOne({
-        _id: verifyToken._id,
+    const username = req.cookies.username;
+    const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
+    if (verifyToken.username === username) {
+      var rootUser = await User.findOne({
+        username: verifyToken.username,
         "tokens.token": token,
       });
-      if (!rootUser) {
-        res.status(400).send("User Not Found");
-      } else {
-        res.status(200).send("Authorized User");
-      }
+    }
+    if (!rootUser) {
+      res.status(401).send("User Not Found");
+    } else {
+      next();
     }
   } catch (error) {
-    res.status(400).send("Error");
+    res.status(401).send("Error");
     console.log(error);
   }
 };
@@ -95,7 +94,7 @@ const getScore = async (req, res) => {
   }
 };
 
-exports.authenticate = authenticate;
+exports.authorise = authorise;
 exports.getLeaderboard = getLeaderboard;
 exports.deleteUser = deleteUser;
 exports.updateScore = updateScore;

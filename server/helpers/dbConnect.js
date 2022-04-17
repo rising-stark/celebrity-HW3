@@ -1,4 +1,4 @@
-const mongoose  = require('mongoose');
+const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
 function dbconnect() {
@@ -7,11 +7,11 @@ function dbconnect() {
     .connect(process.env.DB_URI)
     .then(() => console.log("Connected To Database"))
     .catch((err) => console.log(err));
-  return mongoose.connection
+  return mongoose.connection;
 }
 
 function dbclose() {
   return mongoose.disconnect();
 }
 
-module.exports = {dbconnect, dbclose};
+module.exports = { dbconnect, dbclose };
