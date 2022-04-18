@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
+const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 
 const userSchema = new mongoose.Schema(
   {
@@ -22,22 +22,24 @@ const userSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Generate Tokens to Verify User
+// eslint-disable-next-line func-names
 userSchema.methods.generateToken = async function () {
+  let generatedToken;
   try {
-    let generatedToken = jwt.sign(
+    generatedToken = jwt.sign(
       { username: this.username },
-      process.env.SECRET_KEY
+      process.env.SECRET_KEY,
     );
     this.tokens = this.tokens.concat({ token: generatedToken });
     await this.save();
-    return generatedToken;
   } catch (error) {
     console.log(error);
   }
+  return generatedToken;
 };
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema);

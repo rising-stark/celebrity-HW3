@@ -1,92 +1,93 @@
-const supertest = require("supertest");
-const app = require("../app");
+const supertest = require('supertest');
+const app = require('../app');
+
 const request = supertest(app);
 
-const testSetup = require("./helpers/testSetup");
+const testSetup = require('./helpers/testSetup');
 const {
   testJwt,
   testUsername,
   testUserBestScore,
   testOverallBestScore,
-} = require("./helpers/testConstants");
+} = require('./helpers/testConstants');
 
 testSetup();
 
-describe("POST /login. usersController.login() tests", () => {
-  it("Expect status 200 for a new user with username and jwt objects as response", async () => {
-    const res = await request.post("/login").send({
-      username: "test_new_username",
+describe('POST /login. usersController.login() tests', () => {
+  it('Expect status 200 for a new user with username and jwt objects as response', async () => {
+    const res = await request.post('/login').send({
+      username: 'test_new_username',
     });
 
     expect(res.status).toBe(200);
 
     // Ensuring username object in response
-    const username = res.body.username;
-    expect(username).toBe("test_new_username");
+    const { username } = res.body;
+    expect(username).toBe('test_new_username');
 
     // Ensuring jwt object in response
-    const jwt = res.body.jwt;
+    const { jwt } = res.body;
     expect(jwt).toBeTruthy();
   });
 
-  it("Expect status 200 for a user that is already present with username and jwt objects as response", async () => {
-    const res = await request.post("/login").send({
+  it('Expect status 200 for a user that is already present with username and jwt objects as response', async () => {
+    const res = await request.post('/login').send({
       username: testUsername,
     });
 
     expect(res.status).toBe(200);
 
     // Ensuring username object in response
-    const username = res.body.username;
+    const { username } = res.body;
     expect(username).toBe(testUsername);
 
     // Ensuring jwt object in response
-    const jwt = res.body.jwt;
+    const { jwt } = res.body;
     expect(jwt).toBeTruthy();
   });
 
-  it("Expect status 400 for sending the request without the username", async () => {
-    const res = await request.post("/login");
+  it('Expect status 400 for sending the request without the username', async () => {
+    const res = await request.post('/login');
 
     expect(res.status).toBe(400);
   });
 });
 
-describe("GET /leaderboard. usersController.getLeaderboard() tests", () => {
-  it("Request with correct credentials. Expect status 200 with a leaderboard object as response", async () => {
+describe('GET /leaderboard. usersController.getLeaderboard() tests', () => {
+  it('Request with correct credentials. Expect status 200 with a leaderboard object as response', async () => {
     const res = await request
-      .get("/leaderboard")
-      .set("Cookie", [`jwt=${testJwt}`, `username=${testUsername}`]);
+      .get('/leaderboard')
+      .set('Cookie', [`jwt=${testJwt}`, `username=${testUsername}`]);
 
     expect(res.status).toBe(200);
 
     // Ensuring leaderboard object in response
-    const leaderboard = res.body.leaderboard;
+    const { leaderboard } = res.body;
     expect(leaderboard).toBeTruthy();
-    for (let i = 0; i < leaderboard.length; i++) {
-      expect(leaderboard[i].username).toBeTruthy();
-      expect(leaderboard[i].bestScore).toBeGreaterThanOrEqual(0);
-      expect(leaderboard[i]._id).toBeFalsy();
-      expect(leaderboard[i].tokens).toBeFalsy();
-    }
+    leaderboard.forEach((l) => {
+      expect(l.username).toBeTruthy();
+      expect(l.bestScore).toBeGreaterThanOrEqual(0);
+      expect(l._id).toBeFalsy();
+      expect(l.tokens).toBeFalsy();
+    });
   });
 
-  it("Request without credentials. Expect status 401", async () => {
-    const res = await request.get("/leaderboard");
+  it('Request without credentials. Expect status 401', async () => {
+    const res = await request.get('/leaderboard');
 
     expect(res.status).toBe(401);
   });
 });
 
-describe("GET /users/:username. usersController.getScore() tests", () => {
-  it("Request with correct credentials. Expect status 200 for a user that is present with myScore & bestScore objects as response.", async () => {
+describe('GET /users/:username. usersController.getScore() tests', () => {
+  it('Request with correct credentials. Expect status 200 for a user that is present with myScore & bestScore objects as response.', async () => {
     const res = await request
       .get(`/users/${testUsername}`)
-      .set("Cookie", [`jwt=${testJwt}`, `username=${testUsername}`]);
+      .set('Cookie', [`jwt=${testJwt}`, `username=${testUsername}`]);
 
     expect(res.status).toBe(200);
     // Ensuring myScore object in response
-    const myScore = res.body.myScore;
+    const { myScore } = res.body;
     expect(myScore).toBeTruthy();
     expect(myScore.bestScore).toBe(testUserBestScore);
     expect(myScore._id).toBeFalsy();
@@ -102,26 +103,26 @@ describe("GET /users/:username. usersController.getScore() tests", () => {
     expect(bestScore.tokens).toBeFalsy();
   });
 
-  it("Request with wrong credentials. Expect status 401 for a user that is NOT present.", async () => {
+  it('Request with wrong credentials. Expect status 401 for a user that is NOT present.', async () => {
     const res = await request
-      .get("/users/not_present_username")
-      .set("Cookie", [`jwt=${testJwt}`, `username=not_present_username`]);
+      .get('/users/not_present_username')
+      .set('Cookie', [`jwt=${testJwt}`, 'username=not_present_username']);
 
     expect(res.status).toBe(401);
   });
 
-  it("Request without credentials. Expect status 401", async () => {
+  it('Request without credentials. Expect status 401', async () => {
     const res = await request.get(`/users/${testUsername}`);
 
     expect(res.status).toBe(401);
   });
 });
 
-describe("PUT /users/:username. usersController.updateScore() tests", () => {
-  it("Request with correct credentials. Expect status 200 for a user that is present", async () => {
+describe('PUT /users/:username. usersController.updateScore() tests', () => {
+  it('Request with correct credentials. Expect status 200 for a user that is present', async () => {
     const res = await request
       .put(`/users/${testUsername}`)
-      .set("Cookie", [`jwt=${testJwt}`, `username=${testUsername}`])
+      .set('Cookie', [`jwt=${testJwt}`, `username=${testUsername}`])
       .send({
         bestScore: 4,
       });
@@ -129,10 +130,10 @@ describe("PUT /users/:username. usersController.updateScore() tests", () => {
     expect(res.status).toBe(200);
   });
 
-  it("Request with wrong credentials. Expect status 401 for a user that is NOT present.", async () => {
+  it('Request with wrong credentials. Expect status 401 for a user that is NOT present.', async () => {
     const res = await request
-      .put("/users/not_present_username")
-      .set("Cookie", [`jwt=${testJwt}`, `username=not_present_username`])
+      .put('/users/not_present_username')
+      .set('Cookie', [`jwt=${testJwt}`, 'username=not_present_username'])
       .send({
         bestScore: 4,
       });
@@ -140,7 +141,7 @@ describe("PUT /users/:username. usersController.updateScore() tests", () => {
     expect(res.status).toBe(401);
   });
 
-  it("Request without credentials. Expect status 401", async () => {
+  it('Request without credentials. Expect status 401', async () => {
     const res = await request.put(`/users/${testUsername}`).send({
       bestScore: 4,
     });
@@ -149,24 +150,24 @@ describe("PUT /users/:username. usersController.updateScore() tests", () => {
   });
 });
 
-describe("DELETE /users/:username. usersController.deleteUser() tests", () => {
-  it("Request with correct credentials. Expect status 200 for a user that is present.", async () => {
+describe('DELETE /users/:username. usersController.deleteUser() tests', () => {
+  it('Request with correct credentials. Expect status 200 for a user that is present.', async () => {
     const res = await request
       .delete(`/users/${testUsername}`)
-      .set("Cookie", [`jwt=${testJwt}`, `username=${testUsername}`]);
+      .set('Cookie', [`jwt=${testJwt}`, `username=${testUsername}`]);
 
     expect(res.status).toBe(200);
   });
 
-  it("Request with wrong credentials. Expect status 401 trying to delete the same user again or a user that is not present", async () => {
+  it('Request with wrong credentials. Expect status 401 trying to delete the same user again or a user that is not present', async () => {
     const res = await request
       .delete(`/users/${testUsername}`)
-      .set("Cookie", [`jwt=${testJwt}`, `username=${testUsername}`]);
+      .set('Cookie', [`jwt=${testJwt}`, `username=${testUsername}`]);
 
     expect(res.status).toBe(401);
   });
 
-  it("Request without credentials. Expect status 401", async () => {
+  it('Request without credentials. Expect status 401', async () => {
     const res = await request.delete(`/users/${testUsername}`);
 
     expect(res.status).toBe(401);

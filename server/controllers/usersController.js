@@ -1,25 +1,26 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 const authorise = async (req, res, next) => {
   try {
     // Get the Cookies
     const token = req.cookies.jwt;
-    const username = req.cookies.username;
+    const { username } = req.cookies;
     const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
+    let rootUser;
     if (verifyToken.username === username) {
-      var rootUser = await User.findOne({
+      rootUser = await User.findOne({
         username: verifyToken.username,
-        "tokens.token": token,
+        'tokens.token': token,
       });
     }
     if (!rootUser) {
-      res.status(401).send("User Not Found");
+      res.status(401).send('User Not Found');
     } else {
       next();
     }
   } catch (error) {
-    res.status(401).send("Error");
+    res.status(401).send('Error');
     console.log(error);
   }
 };
@@ -31,36 +32,36 @@ const login = async (req, res) => {
     if (!user) {
       user = await User.create({ username });
     }
-    const jwt = await user.generateToken();
-    res.cookie("jwt", jwt);
-    res.cookie("username", user.username);
-    return res.status(200).json({ username, jwt });
+    const token = await user.generateToken();
+    res.cookie('jwt', token);
+    res.cookie('username', user.username);
+    return res.status(200).json({ username, jwt: token });
   } catch (err) {
     console.log(err);
-    return res.status(400).send("Server error");
+    return res.status(400).send('Server error');
   }
 };
 
 const getLeaderboard = async (req, res) => {
   try {
-    let leaderCount = req.body.leaderCount || 10;
-    let leaderboard = await User.find({}, { username: 1, bestScore: 1, _id: 0 })
+    const leaderCount = req.body.leaderCount || 10;
+    const leaderboard = await User.find({}, { username: 1, bestScore: 1, _id: 0 })
       .sort({ bestScore: -1 })
       .limit(leaderCount);
     return res.status(200).json({ leaderboard });
   } catch (err) {
     console.log(err);
-    return res.status(400).send("No users found");
+    return res.status(400).send('No users found');
   }
 };
 
 const deleteUser = async (req, res) => {
   try {
     await User.findOneAndDelete({ username: req.params.username });
-    return res.status(200).send("User Successfully Deleted");
+    return res.status(200).send('User Successfully Deleted');
   } catch (err) {
     console.log(err);
-    return res.status(400).send("Unable To Delete this user");
+    return res.status(400).send('Unable To Delete this user');
   }
 };
 
@@ -69,12 +70,12 @@ const updateScore = async (req, res) => {
     const { bestScore } = req.body;
     await User.findOneAndUpdate(
       { username: req.params.username },
-      { bestScore }
+      { bestScore },
     );
-    return res.status(200).send("User bestScore successfully updated");
+    return res.status(200).send('User bestScore successfully updated');
   } catch (err) {
     console.log(err);
-    return res.status(400).send("Unable To update user bestScore");
+    return res.status(400).send('Unable To update user bestScore');
   }
 };
 
@@ -82,7 +83,7 @@ const getScore = async (req, res) => {
   try {
     const myScore = await User.findOne(
       { username: req.params.username },
-      { bestScore: 1, _id: 0 }
+      { bestScore: 1, _id: 0 },
     );
     const bestScore = await User.find({}, { username: 1, bestScore: 1, _id: 0 })
       .sort({ bestScore: -1 })
@@ -90,7 +91,7 @@ const getScore = async (req, res) => {
     return res.status(200).json({ myScore, bestScore });
   } catch (err) {
     console.log(err);
-    return res.status(400).send("Unable To find user score");
+    return res.status(400).send('Unable To find user score');
   }
 };
 

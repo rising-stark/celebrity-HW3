@@ -1,39 +1,40 @@
-const express = require("express");
+const express = require('express');
+
 const router = express.Router();
-const usersController = require("../controllers/usersController");
-const questionsController = require("../controllers/questionsController");
+const usersController = require('../controllers/usersController');
+const questionsController = require('../controllers/questionsController');
 
 // Auth routes
-router.post("/auth", usersController.authorise);
-router.post("/login", usersController.login);
+router.post('/auth', usersController.authorise);
+router.post('/login', usersController.login);
 
 // Question routes
 router.get(
-  "/questions",
+  '/questions',
   usersController.authorise,
-  questionsController.getQuestions
+  questionsController.getQuestions,
 );
 
 // User routes
 router.get(
-  "/leaderboard",
+  '/leaderboard',
   usersController.authorise,
-  usersController.getLeaderboard
+  usersController.getLeaderboard,
 );
 router.get(
-  "/users/:username",
+  '/users/:username',
   usersController.authorise,
-  usersController.getScore
+  usersController.getScore,
 );
 router.put(
-  "/users/:username",
+  '/users/:username',
   usersController.authorise,
-  usersController.updateScore
+  usersController.updateScore,
 );
 router.delete(
-  "/users/:username",
+  '/users/:username',
   usersController.authorise,
-  usersController.deleteUser
+  usersController.deleteUser,
 );
 
 module.exports = router;
